@@ -273,3 +273,7 @@ If app does not load → fix Security Group
 Go to EC2 → Security → Security Groups
 Edit inbound rules → Add Rule
 Custom TCP → Port 9090 → Source 0.0.0.0/0
+
+
+FROM nginx:latest
+COPY index.html /usr/share/nginx/html/index.html
