@@ -277,3 +277,44 @@ Custom TCP → Port 9090 → Source 0.0.0.0/0
 
 FROM nginx:latest
 COPY index.html /usr/share/nginx/html/index.html
+
+
+
+
+If app does not load → fix Security Group
+Go to EC2 → Security → Security Groups
+Edit inbound rules → Add Rule
+Custom TCP → Port 9090 → Source 0.0.0.0/0
+
+//KUBERNETES
+//deployment kubernetes
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: myapp-container
+          image: myapp:latest
+          ports:
+
+            - containerPort: 3000
+
+
+COMMANDS:
+minikube start
+eval $(minikube docker-env)
+docker build -t myapp:latest .
+kubectl apply -f deployment.yaml
+kubectl get pods
+kubectl expose deployment myapp --type=NodePort --port=3000
+minikube service myapp
