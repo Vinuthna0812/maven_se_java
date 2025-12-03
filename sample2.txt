@@ -1,0 +1,178 @@
+DOCKER-COMPOSE,DOCKERFILE,SCRIPT,CONFIGURING TOMCAT
+
+DOCKER COMPOSE
+docker-compose.yml
+docker-compose up -d
+
+for nginx and tomcat:
+services:
+ web:
+  image: nginx
+  ports:
+   - "8060:80"
+ db:
+  image: tomee
+  ports:
+   - "8050:8080"
+
+open localhost:8060 for nginx nd 8050 for tomcat
+
+for wordpress and MySQL:
+services:
+ wordpress:
+  image: wordpress:latest
+  ports: 
+   - "9080:80"
+  environment:
+   WORDPRESS_DB_HOST: db:3306
+   WORDPRESS_DB_USER: wordpress
+   WORDPRESS_DB_PASSWORD: wordpress
+   WORDPRESS_DB_NAME: wordpress
+  depends_on:
+   - db
+ db:
+  image: mysql:5.7
+  environment:
+   MYSQL_ROOT_PASSWORD: rootpassword
+   MYSQL_DATABASE: wordpress
+   MYSQL_USER: wordpress
+   MYSQL_PASSWORD: wordpress
+
+go to 9080
+
+FOR FLASK APPLICATION:
+app.py:
+from flask import Flask
+app=Flask(__name__)
+@app.route("/")
+def home():
+    return "hello hi"
+if __name__=="__main__":
+    app.run(host="0.0.0.0",port=5000)
+
+
+Dockerfile:
+FROM python:3.10-slim
+WORKDIR /app
+COPY app.py /app/
+RUN pip install flask
+CMD ["python","app.py"]
+
+
+docker-compose.yml:
+version: "3.9"
+
+services:
+ web:
+  build: .
+  ports:
+   - "5000:5000"
+  depends_on:
+   - db
+
+ db:
+  image: mysql:8.0
+  restart: always
+  environment:
+   MYSQL_ROOT_PASSWORD: root
+   MYSQL_DATABASE: mydb
+  ports:
+   - "3307:3306"
+
+command here is:  docker-compose up --build
+
+view on 5000
+
+-------------------------------------------------------------------------------------------------------
+
+Dockerfile:
+
+1.
+       FROM redis:latest
+       CMD ["redis-server"]
+
+
+2.
+
+FROM python:3.10-slim
+WORKDIR /app
+COPY app.py /app
+RUN pip install flask
+CMD ["python", "app.py"]
+
+
+3.
+
+Run: nano Dockerfile
+FROM nginx:alpine
+COPY . /usr/share/nginx/html
+
+
+4.
+
+FROM nginx:latest
+COPY index.html /usr/share/nginx/html/index.html
+-------------------------------------------------------------------------------------------------------
+
+pipeline script:
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JAVA_HOME'
+        maven 'maven'
+    }
+
+    stages {
+
+        stage('git repo & clean') {
+            steps {
+                bat "rmdir /s /q 23BD1A051X_se_java || exit 0"
+                bat "git clone https://github.com/SarvikaSomishetty/23BD1A051X_se_java.git"
+                bat "mvn clean -f 23BD1A051X_se_java/pom.xml"
+            }
+        }
+
+        stage('install') {
+            steps {
+                bat "mvn install -f 23BD1A051X_se_java/pom.xml"
+            }
+        }
+
+        stage('test') {
+            steps {
+                bat "mvn test -f 23BD1A051X_se_java/pom.xml"
+            }
+        }
+
+        stage('package') {
+            steps {
+                bat "mvn package -f 23BD1A051X_se_java/pom.xml"
+            }
+        }
+    }
+}
+
+-------------------------------------------------------------------------------------------------------
+
+tomcat-users.xml:
+<role rolename="manager-gui"/>
+    <role rolename="manager-script"/>
+    <role rolename="manager-jmx"/>
+    <role rolename="manager-status"/>
+    <role rolename="admin-gui"/>
+
+    <!-- Single admin user with all permissions -->
+    <user username="admin"
+          password="1234"
+          roles="manager-gui,manager-script,manager-jmx,manager-status,admin-gui"/>
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------
+
+cat /etc/nginx/sites-enabled/default
+cp /usr/share/nginx/html/index.html /var/www/html/index.html
